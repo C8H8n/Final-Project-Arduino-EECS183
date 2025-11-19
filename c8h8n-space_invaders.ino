@@ -312,6 +312,10 @@ class Game {
       
     }
 
+    void restart_player() {
+      player = Player();
+    }
+
     // sets up a new game of Space Invaders
     // Modifies: global variable matrix
     void setupGame() {
@@ -416,7 +420,7 @@ class Game {
         game_over();
         delay(1000);
         level = 1;
-        player.restart_player();
+        game.restart_player();
         setupGame();
       }
 
@@ -430,7 +434,7 @@ class Game {
       {
         ball.fire(player.get_x(), 14);
       }
-      ball.move();
+      // ball.move();
       
       else {
       for (int i = 0; i < NUM_ENEMIES; i++) {
