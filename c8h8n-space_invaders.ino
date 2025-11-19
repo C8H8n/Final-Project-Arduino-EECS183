@@ -411,19 +411,72 @@ class Game {
     // see spec for details of game
     // Modifies: global variable matrix
     void update(int potentiometer_value, bool button_pressed) {
-      player.set_x((potentiometer_value)/32);
+      if (player.get_lives() <= 0)
+      {
+        game_over();
+        delay(1000);
+        level = 1;
+        player.restart_player();
+        setupGame();
+      }
+
+
+
+      player.erase();
+      player.set_x((matrix.width() * potentiometer_value) / 1024 );
       player.draw();
+
+      if(button_pressed && !ball.has_been_fired())
+      {
+        ball.fire(player.get_x(), 14);
+      }
       ball.move();
-      if (button_pressed) {
-        ball.fire(player.get_x(), 15); // y is always 15
+      
+      else {
+      for (int i = 0; i < NUM_ENEMIES; i++) {
+        
+        if (enemies[i].get_strength() > 0) {
+          if (i >= 8) {
+            enemies[i].move();
+          }
+          if ((i < 8) && (bottom_row_cleared())) {
+             enemies[i].move();
+          }
+        }
+
+
+        if (ball.has_been_fired()) {
+          if (enemies[i].has_been_hit(ball.get_x(), ball.get_y())) {
+            
+            ball.hit();
+            enemies[i].hit();
+          }
+        }
+
+        if (enemies[i].has_hit_bottom() || enemies[i].invader_hit_cannon(player.get_x(), player.get_y())) {
+        player.die();
+        matrix.fillScreen(BLACK.to_333());
+        matrix.setCursor(1,0);
+        matrix.println("Lost");
+        matrix.print("Life");
+        delay(2000);
+         
+        setupGame();
+        }
+      }
+      }
+ 
+      if (level_cleared()) {
+        reset_level();
       }
     }
+
   private:
-    int level;
-    unsigned long time;
-    Player player;
-    Cannonball ball;
-    Invader enemies[NUM_ENEMIES] = {Invader()};
+  int level;
+  unsigned long time;
+  Player player;
+  Cannonball ball;
+  Invader enemies[NUM_ENEMIES] = {Invader()};
 
     // check if Player defeated all Invaders in current level
     bool level_cleared() {
@@ -441,10 +494,8 @@ class Game {
       setupGame();
     }
 };
-
 // a global variable that represents the game Space Invaders
 Game game;
-
 // DEBUGGING / TESTING GLOBAL VARS
 long time = 0;
 int startX = 0;
@@ -454,7 +505,7 @@ void setup() {
   Serial.begin(9600);
   pinMode(BUTTON_PIN_NUMBER, INPUT);
   matrix.begin();
-  //title();
+  title();
   game.setupGame();
 
 }
@@ -463,7 +514,6 @@ void loop() {
   int potentiometer_value = analogRead(POTENTIOMETER_PIN_NUMBER);
   bool button_pressed = (digitalRead(BUTTON_PIN_NUMBER) == HIGH);
   game.update(potentiometer_value, button_pressed);
-  
   
 }
 
@@ -485,7 +535,7 @@ void print_lives(int lives) {
 
 // displays "game over"
 void game_over() {
-  matrix.fillScreen(BLACK.to_333());
+  matrix.fillScreen(BLACK.to.333());
   matrix.setCursor(1, 0);
   matrix.println("Game Over");
 }
