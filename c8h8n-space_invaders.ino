@@ -97,38 +97,37 @@ class Invader {
     // draws the Invader if its strength is greater than 0
     // calls: draw_with_rgb
     void draw() {
-    Color temp;
-    Color eyes = BLUE;
-    if(0 >= get_strength() || 7 < get_strength()) {
-      erase();
-      return;
-    }
-    else if(1 == get_strength()) {
-      temp = RED;
-    }
-    else if(2 == get_strength()) {
-      temp = ORANGE;
-    }
-    else if(3 == get_strength()) {
-      temp = YELLOW;
-    }
-    else if(4 == get_strength()) {
-      temp = GREEN;
-    }
-    else if(5 == get_strength()) {
-      temp = BLUE;
-    }
-    else if(6 == get_strength()) {
-      temp = PURPLE;
-    }
-    else if(7 == get_strength()) {
-      temp = WHITE;
-    }
-    draw_with_rgb(temp, eyes);
-    return;
-    }
+      Color temp = RED;
+      Color eyes = BLUE;
 
-
+      switch (get_strength()) {
+        case 1:
+          temp = RED;
+          break;
+        case 2:
+          temp = ORANGE;
+          break;
+        case 3:
+          temp = YELLOW;
+          break;
+        case 4:
+          temp = GREEN;
+          break;
+        case 5:
+          temp = BLUE;
+          break;
+        case 6:
+          temp = PURPLE;
+          break;
+        case 7:
+          temp = WHITE;
+          break;
+        default: 
+          erase();
+          return;
+      }
+      draw_with_rgb(temp, eyes);
+    }
 
     // draws black where the Invader used to be
     // calls: draw_with_rgb
@@ -154,13 +153,13 @@ class Invader {
     void draw_with_rgb(Color body_color, Color eye_color) {
       matrix.drawPixel((x + 1), y, body_color.to_333());
       matrix.drawPixel((x + 2), y, body_color.to_333());
-      matrix.drawPixel(x, (x + 1), body_color.to_333());
+      matrix.drawPixel(x, (y + 1), body_color.to_333());
       matrix.drawPixel((x + 3), (y + 1), body_color.to_333());
-      matrix.drawPixel(x, (x + 2), body_color.to_333());
+      matrix.drawPixel(x, (y + 2), body_color.to_333());
       matrix.drawPixel((x + 1), (y + 2), body_color.to_333());
       matrix.drawPixel((x + 2), (y + 2), body_color.to_333());
       matrix.drawPixel((x + 3), (y + 2), body_color.to_333());
-      matrix.drawPixel(x, (x + 3), body_color.to_333());
+      matrix.drawPixel(x, (y + 3), body_color.to_333());
       matrix.drawPixel((x + 3), (y + 1), body_color.to_333());
       matrix.drawPixel((x + 1), (y + 1), body_color.to_333());
       matrix.drawPixel((x + 2), (y + 1), body_color.to_333());
@@ -323,22 +322,13 @@ class Game {
       print_lives(player.get_lives());
       delay(2000);
       matrix.fillScreen(0b000000000); // fills screen black
-      int x_arg = 1;
+      int x_arg = 0;
       int y_arg = 0;
 
       if (level == 1) {
         for (int i = 0; i < 8; i++) {
           int power = 1;
           enemies[i].initialize(x_arg, y_arg, power);
-          enemies[i].draw();
-          x_arg = x_arg + 4;
-        }
-
-        y_arg = 5;
-        x_arg = 1;
-
-        for (int i = 8; i < NUM_ENEMIES; i++) {
-          enemies[i].initialize(x_arg, y_arg, 0);
           enemies[i].draw();
           x_arg = x_arg + 4;
         }
@@ -355,7 +345,7 @@ class Game {
           x_arg = x_arg + 4;
         }
         y_arg = 5;
-        x_arg = 1;
+        x_arg = 0;
 
         for (int i = 8; i < NUM_ENEMIES - 1; i = i + 2) {
           enemies[i].initialize(x_arg, y_arg, 2);
@@ -367,7 +357,7 @@ class Game {
         }
       }
       else if (level == 3) {
-        x_arg = 1;
+        x_arg = 0;
         y_arg = 0;
         int level3[2][8] = {{1, 2, 3, 4, 5, 1, 2, 3}, {4, 5, 1, 2, 3, 4, 5, 1}};
         for (int i = 0; i < 2; i++) {
@@ -376,12 +366,12 @@ class Game {
             enemies[i * 8 + j].draw();
             x_arg = x_arg + 4;
           }
-          x_arg = 1;
+          x_arg = 0;
           y_arg = y_arg + 5;
         }
       }
       else if (level == 4) {
-        x_arg = 1;
+        x_arg = 0;
         y_arg = 0;
         int level4[2][8] = {{5, 4, 5, 4, 5, 4, 5, 4}, {2, 3, 2, 3, 2, 3, 2, 3}};
         for (int i = 0; i < 2; i++) {
@@ -391,11 +381,11 @@ class Game {
             x_arg = x_arg + 4;
           }
           y_arg = y_arg + 5;
-          x_arg = 1;
+          x_arg = 0;
         }
       }
       else {
-        x_arg = 1;
+        x_arg = 0;
         y_arg = 0;
         int levelExtra[2][8];
         randomSeed(micros());
@@ -414,7 +404,6 @@ class Game {
           x_arg = x_arg + 1;
         }
       }
-      player.draw();
 
     }
 
@@ -434,7 +423,7 @@ class Game {
     unsigned long time;
     Player player;
     Cannonball ball;
-    Invader enemies[NUM_ENEMIES];
+    Invader enemies[NUM_ENEMIES] = {Invader()};
 
     // check if Player defeated all Invaders in current level
     bool level_cleared() {
