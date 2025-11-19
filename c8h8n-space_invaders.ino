@@ -140,9 +140,9 @@ class Invader {
     // Modifies: strength
     // calls: draw, erase
     void hit() {
-    erase();
-    strength -= 1;
-    draw();
+      erase();
+      strength -= 1;
+      draw();
     }
 
   private:
@@ -173,14 +173,12 @@ class Cannonball {
       x = 0;
       y = 0;
       fired = false;
-      strength = 1; // I'm confused what this is doing here. This also have not been declared prior
-      time = 0; // dotto here.
+      time = 0; 
     }
 
     // resets private data members to initial values
     void reset() {
       fired = false;
-      strength = 1;
     }
 
     // getters
@@ -196,77 +194,40 @@ class Cannonball {
 
     // sets private data members
     void fire(int x_arg, int y_arg) {
-      x = x_arg;
-      y = y_arg;
-      fired = true;
+      if (!fired) {
+        x = x_arg;
+        y = y_arg;
+        fired = true;
+      }
     }
     
     // moves the Cannonball and detects if it goes off the screen
     // Modifies: y, fired
     void move() {
-      time = millis();
-      if (fired) {
-        erase();
-        y--;
-        if (y < 0) {
-          fired = false;
+      if (millis() > time + 10) {
+        if (fired) {
+          erase();
+          y--;
+          if (y < 0) {
+            fired = false;
+          }
+          else {
+            draw();
+          }
         }
-        else {
-          draw();
-        }
-      }
-    }
 
-    // resets private data members to initial values
-    void hit() {
-      strength--;
-      if (strength > 0) {
-        draw();
-      }
-      else {
-        erase();
-
+        time = millis();
       }
     }
 
     // draws the Cannonball, if it is fired
     void draw() {
-      //if invader has strength left, strength is corresponding color is assigned
-      if (strength > 0) {
-        Color body_color;
-        if (strength == 1) {
-          body_color = RED;
-        }
-        else if (strength == 2) {
-          body_color = ORANGE;
-        }
-        else if (strength == 3) {
-          body_color = YELLOW;
-        }
-        else if (strength == 4) {
-          body_color = GREEN;
-        }
-        else if (strength == 5) {
-          body_color = BLUE;
-        }
-        else if (strength == 6) {
-          body_color = PURPLE;
-        }
-        else {
-          body_color = WHITE;
-        }
-        draw_with_rgb(body_color, BLUE);
-    }
-    //If the invader does not have strength, the whole invader is erased with black
-    else {
-      draw_with_rgb(BLACK, BLACK);
-    }
-
+      matrix.drawPixel(x, y, ORANGE.to_333());
     }
 
     // draws black where the Cannonball used to be
     void erase() {
-      draw_with_rgb(BLACK, BLACK);
+      matrix.drawPixel(x, y, BLACK.to_333());
     }
 
   private:
@@ -347,29 +308,28 @@ class Player {
 class Game {
   public:
     Game() {
-      level = 0;
       level = 1;
       time = 0;
+      
     }
 
     // sets up a new game of Space Invaders
     // Modifies: global variable matrix
     void setupGame() {
-      Player player;
-      delay(500);
-      delay(100000000);
-      delay(500);
+      // Cannonball cannonball;
+      // Player player;
       print_level(level);
       delay(2000);
-      print_lives(player.get_level());
+      print_lives(player.get_lives());
       delay(2000);
+      matrix.fillScreen(0b000000000); // fills screen black
       int x_arg = 1;
       int y_arg = 0;
 
       if (level == 1) {
         for (int i = 0; i < 8; i++) {
-          int power = 1
-          ennemies[i].initialize(x_arg, y_arg, power);
+          int power = 1;
+          enemies[i].initialize(x_arg, y_arg, power);
           enemies[i].draw();
           x_arg = x_arg + 4;
         }
@@ -416,7 +376,7 @@ class Game {
             enemies[i * 8 + j].draw();
             x_arg = x_arg + 4;
           }
-          x_arg = 1
+          x_arg = 1;
           y_arg = y_arg + 5;
         }
       }
@@ -464,6 +424,10 @@ class Game {
     void update(int potentiometer_value, bool button_pressed) {
       player.set_x((potentiometer_value)/32);
       player.draw();
+      ball.move();
+      if (button_pressed) {
+        ball.fire(player.get_x(), 15); // y is always 15
+      }
     }
   private:
     int level;
@@ -491,6 +455,7 @@ class Game {
 
 // a global variable that represents the game Space Invaders
 Game game;
+
 // DEBUGGING / TESTING GLOBAL VARS
 long time = 0;
 int startX = 0;
@@ -500,7 +465,7 @@ void setup() {
   Serial.begin(9600);
   pinMode(BUTTON_PIN_NUMBER, INPUT);
   matrix.begin();
-  title();
+  //title();
   game.setupGame();
 
 }
@@ -509,6 +474,7 @@ void loop() {
   int potentiometer_value = analogRead(POTENTIOMETER_PIN_NUMBER);
   bool button_pressed = (digitalRead(BUTTON_PIN_NUMBER) == HIGH);
   game.update(potentiometer_value, button_pressed);
+  
   
 }
 
@@ -530,7 +496,7 @@ void print_lives(int lives) {
 
 // displays "game over"
 void game_over() {
-  matrix.fillScreen(BLACK.to.333());
+  matrix.fillScreen(BLACK.to_333());
   matrix.setCursor(1, 0);
   matrix.println("Game Over");
 }
