@@ -65,28 +65,51 @@ class Invader {
       x = 0;
       y = 0;
       strength = 0;
+      time = millis();
     }
     // sets values for private date members x and y
     Invader(int x_arg, int y_arg) {
+      x = x_arg;
+      y = y_arg;
+      strength = 0;
+      time = millis();
     }
     // sets values for private data members
     Invader(int x_arg, int y_arg, int strength_arg) {
+      x = x_arg;
+      y = y_arg;
+      strength = 0;
+      time = millis();
     }
     // sets values for private data members
     void initialize(int x_arg, int y_arg, int strength_arg) {
+      x = x_arg;
+      y = y_arg;
+      strength = strength_arg;
+      time = millis();
     }
     
     // getters
     int get_x() const {
+      return x;
     }
     int get_y() const {
+      return y;
     }
     int get_strength() const {
+      return strength;
     }
 
     // Moves the Invader down the screen by one row
     // Modifies: y
     void move() {
+      time = millis();
+      if (time > last_time + 1750) {
+        erase();
+        y = y + 1;
+        draw();
+        last_time = time;
+      }
     }
     
     // draws the Invader if its strength is greater than 0
@@ -121,6 +144,7 @@ class Cannonball {
       x = 0;
       y = 0;
       fired = false;
+      time = millis();
     }
     
     // resets private data members to initial values
@@ -129,10 +153,13 @@ class Cannonball {
     
     // getters
     int get_x() const {
+      return x;
     }
     int get_y() const {
+      return y;
     }
     bool has_been_fired() const {
+      return fired;
     }
     
     // sets private data members
@@ -142,18 +169,57 @@ class Cannonball {
     // moves the Cannonball and detects if it goes off the screen
     // Modifies: y, fired
     void move() {
+      time = millis();
     }
     
     // resets private data members to initial values
     void hit() {
+      strength = strength - 1;
+      if (strength > 0) {
+        draw();
+      }
+      else {
+        erase();
+      
     }
     
     // draws the Cannonball, if it is fired
     void draw() {
+      //if invader has strength left, strength is corresponding color is assigned
+      if (strength > 0) {
+        Color body_color;
+        if (strength == 1) {
+          body_color = RED;
+        }
+        else if (strength == 2) {
+          body_color = ORANGE;
+        }
+        else if (strengh == 3) {
+          body_color = YELLOW;
+        }
+        else if (strengh == 4) {
+          body_color = GREEN;
+        }
+        else if (strengh == 5) {
+          body_color = BLUE;
+        }
+        else if (strengh == 6) {
+          body_color = PURPLE;
+        }
+        else {
+          body_color = WHITE;
+        }
+        draw_with_rgb(body_color, BLUE);
+    }
+    //If the invader does not have strength, the whole invader is erased with black
+    else {
+      draw_with_rgb(BLACK, BLACK);
+    }
     }
     
     // draws black where the Cannonball used to be
     void erase() {
+      draw_with_rgb(BLACK, BLACK);
     }
 
   private:
@@ -248,14 +314,114 @@ class Player {
 class Game {
   public:
     Game() {
-      level = 0;
+      level = 1;
       time = 0;
     }
     
     // sets up a new game of Space Invaders
     // Modifies: global variable matrix
     void setupGame() {
-      Player player;
+      delay(500);
+      btwo.draw();
+      delay(100000000);
+      delay(500);
+      print_level(level);
+      delay(2000);
+      print_lives(player.get_level());
+      delay(2000);
+      int x_arg = 1;
+      int y_arg = 0;
+
+      if (level == 1) {
+        for (int i = 0; i < 8; i++) {
+          int power = 1
+          ennemies[i].initialize(x_arg, y_arg, power);
+          enemies[i].draw();
+          x_arg = x_arg + 4;
+        }
+        
+        y_arg = 5;
+        x_arg = 1;
+
+        for (int i = 8; i < NUM_ENEMIES; i++) {
+          enemies[i].initialize(x_arg, y_arg, 0);
+          enemies[i].draw();
+          x_arg = x_arg + 4;
+        }
+        
+      }
+
+      else if (level == 2) {
+        for (int i = 0; i < 7; i = i + 2) {
+          enemies[i].initialize(x_arg, y_arg, 1);
+          enemies[i].draw();
+          x_arg = x_arg + 4;
+          enemies[i + 1].initialize(x_arg, y_arg, 2);
+          enemies[i + 1].draw();
+          x_arg = x_arg + 4;
+        }
+        y_arg = 5;
+        x_arg = 1;
+
+        for (int i = 8; i < NUM_ENEMIES - 1; i = i + 2) {
+          enemies[i].initialize(x_arg, y_arg, 2);
+          enemies[i].draw();
+          x_arg = x_arg + 4;
+          enemies[i].initialize(x_arg, y_arg, 1);
+          enemies[i + 1].draw();
+          x_arg = x_arg + 4;
+        }
+      }
+      else if (level == 3) {
+        x_arg = 1;
+        y_arg = 0;
+        int level3[2][8] = {{1, 2, 3, 4, 5, 1, 2, 3}, {4, 5, 1, 2, 3, 4, 5, 1}};
+        for (int i = 0; i < 2; i++) {
+          for (int j = 0; j < 8; j++) {
+            enemies[i * 8 + j].initialize(x_arg, y_arg, level3[i][j]);
+            enemies[i * 8 + j].draw();
+            x_arg = x_arg + 4;
+          }
+          x_arg = 1
+          y_arg = y_arg + 5;
+        }
+      }
+      else if (level == 4) {
+        x_arg = 1;
+        y_arg = 0;
+        int level4[2][8] = {{5, 4, 5, 4, 5, 4, 5, 4}, {2, 3, 2, 3, 2, 3, 2, 3}};
+        for (int i = 0; i < 2; i++) {
+          for (int j = 0; j < 8; j++) {
+            enemies[i * 8 + j].initialize(x_arg, y_arg, level4[i][j]);
+            enemies[i * 8 + j].draw();
+            x_arg = x_arg + 4;
+          }
+          y_arg = y_arg + 5;
+          x_arg = 1;
+        }
+      }
+      else {
+        x_arg = 1;
+        y_arg = 0;
+        int levelExtra[2][8];
+        randomSeed(micros());
+        for (int i = 0; i < 2; i++) {
+          for (int j = 0; j < 8; j++) {
+            levelExtra[i][j] = random(1, 8);
+          }
+        }
+        for (int i = 0; i < 2; i++) {
+          for (int j = 0; j < 8; j++) {
+            enemies[i * 8 + j].initialize(x_arg, y_arg, levelExtra[i][j]);
+            enemies[i * 8 + j].draw();
+            x_arg = x_arg + 4;
+          }
+          y_arg = y_arg + 5;
+          x_arg = x_arg + 1;
+        }
+      }
+      player.draw();
+      
     }
     
     // advances the game simulation one step and renders the graphics
@@ -275,10 +441,18 @@ class Game {
 
     // check if Player defeated all Invaders in current level
     bool level_cleared() {
+      for (int i = 0; i < NUM_ENEMIES; i++) {
+        if (enemies[i].get_strength() > 0) {
+          return false;
+        }
+      }
+      return true;
     }
 
     // set up a level
     void reset_level() {
+      level = level + 1;
+      setupGame();
     }
 };
 
@@ -295,6 +469,7 @@ void setup() {
   Serial.begin(9600);
   pinMode(BUTTON_PIN_NUMBER, INPUT);
   matrix.begin();
+  title();
   game.setupGame();
 
 }
@@ -311,13 +486,44 @@ void loop() {
 
 // displays Level
 void print_level(int level) {
+  matrix.fillScreen(BLACK.to_333());
+  matrix.setCursor(1, 0);
+  matrix.print("LEVEL:");
+  matrix.print(level);
 }
 
 // displays number of lives
 void print_lives(int lives) {
+  matrix.fillScreen(BLACK.to_333());
+  matrix.setCursor(1, 0);
+  matrix.print("LIVES:");
+  matrix.print(lives);
 }
 
 // displays "game over"
 void game_over() {
+  matrix.fillScreen(BLACK.to.333());
+  matrix.setCursor(1, 0);
+  matrix.println("Game Over");
 }
 
+void title() {
+  matrix.fillScreen(BLACK.to_333());
+  matrix.setTextSize(1);
+
+  int textWidth = 4 * strlen("SPACE INVADERS");
+
+  int x = matrix.width();
+
+  while (x > -textWidth) {
+    matrix.fillScreen(BLACK.to_333());
+    matrix.setCursor(x - 28, 0);
+    matrix.setTextColor(RED.to_333());
+    matrix.print("SPACE");
+    matrix.setTextColor(WHITE.to_333());
+    matrix.print("INVADERS");
+
+    delay(150);
+    x--;
+  }
+}
