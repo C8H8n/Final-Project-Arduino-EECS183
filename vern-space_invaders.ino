@@ -320,7 +320,7 @@ class Player {
   private:
     uint8_t x;
     uint8_t y;
-    uint8_t lives;
+    int lives;
     // sets private data members x and y to initial values
     void initialize(uint8_t x_arg, uint8_t y_arg) {
       x = x_arg;
@@ -361,6 +361,28 @@ class Game {
       int x_arg = 0;
       int y_arg = 0;
 
+      // THIS HERE IS COMPLETELY OPTIONAL
+
+      // this is the power for each enemy
+      // rows are handled such that elements 0-7 are the top row, elements 8-15 are the bottom row
+      // fixed level arrays for levels 1-4
+      // inline const int8_t[NUM_ENEMIES] LEVEL1 {
+      //   1, 1, 1, 1, 1, 1, 1, 1
+      // }
+
+      // inline const int8_t[NUM_ENEMIES] LEVEL2 {
+      //   1, 2, 1, 2, 1, 2, 1, 2,
+      //   2, 1, 2, 1, 2, 1, 2, 1
+      // }
+
+      // inline const int8_t[NUM_ENEMIES] LEVEL3 {
+      //   1, 2, 1, 2, 1, 2, 1, 2,
+      //   2, 1, 2, 1, 2, 1, 2, 1
+      // }
+
+      // switch statement using inline const arrays
+        // insert code lmao
+
       if (level == 1) {
         for (int i = 0; i < 8; i++) {
           int power = 1;
@@ -370,7 +392,6 @@ class Game {
         }
 
       }
-
       else if (level == 2) {
         for (int i = 0; i < 7; i = i + 2) {
           enemies[i].initialize(x_arg, y_arg, 1);
@@ -467,7 +488,9 @@ class Game {
 
         // === Cannonball Updates
         ball.move();
+        
 
+        // wait please check this because right now you can't shoot behind the lines
         if (bottom_row_cleared()) {
           for (uint8_t i = 0; i < NUM_ENEMIES_ROW; i++) {
             // this is the cannonball collision detection
