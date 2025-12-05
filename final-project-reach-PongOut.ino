@@ -50,10 +50,7 @@ class Color {
     Note that the positions are unsigned integers, so you cannot use "< 0" as a check 
     If you prefer though, we can just use int8_t x and int8_t y in place of this union... it might be better
 */
-union posXY {
-  uint8_t x:4;
-  uint8_t y:4;
-}
+
 
 const Color BLACK(0, 0, 0);
 const Color RED(4, 0, 0); 
@@ -95,7 +92,8 @@ class Paddle {
     }
 
   private:
-    posXY pos;
+    int8_t x;
+    int8_t y;
     uint8_t rallies;
     uint8_t score;
 
@@ -115,7 +113,8 @@ class PongBall {
     }
 
   private:
-    posXY pos;
+    int8_t x;
+    int8_t y;
     bool isTouchingPaddle; // if it hit a paddle
     bool longEdgeCollision; // if the pongball hit left or right
 
@@ -154,7 +153,8 @@ class BreakoutTile {
 
 
   private:
-    posXY pos;
+    int8_t x;
+    int8_t y;
     int8_t health;
     
 
