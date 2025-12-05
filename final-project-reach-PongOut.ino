@@ -91,11 +91,16 @@ class Paddle {
 
     }
 
+    void drawPaddle(int8_t x, int8_t y) {
+
+    }
+
   private:
     int8_t x;
     int8_t y;
     uint8_t rallies;
     uint8_t score;
+    Color paddleColor;
 
     // member functions
     void update() {
@@ -110,6 +115,10 @@ class PongBall {
     // i legit don't know what to put here i'm rushing these just so I can finish my SI110 assignment kms
     PongBall() {
       // constructor code
+    }
+
+    void drawBall(int8_t x, int8_t y) {
+      
     }
 
   private:
