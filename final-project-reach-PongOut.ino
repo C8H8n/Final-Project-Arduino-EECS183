@@ -68,45 +68,83 @@ long globalTime = 0;
 
 // note the Paddle class I've sketched out also acts as a Player class
 class Paddle {
+public:
+  bool player;       
+  int x, y;
+  int rallies;
+  int score;
+  Color paddleColor;
 
-  public:
+  Paddle(bool p) {
+    player = p;
 
-    Paddle() {
-        // default constructor code
+    // Set paddle colors
+    if (player == 0) { 
+    paddleColor = RED;      // left paddle
+    }
+    
+    else {   
+    paddleColor = BLUE;   // right paddle
     }
 
-    // just player #. P1 is 0, P2 is 1
-    bool player; 
+    score = 0;
+    rallies = 0;
 
-    // public functions
-    void resetPos() {
-      // stub
+    resetPos();
+  }
+
+  void resetPos() {
+    // 32 x 16 matrix
+    if (player) {
+    x = 29;
+    }   
+    else {
+    x = 2;
+    }          // P2 on the right, P1 on the left
+    y = 6;                           // centered on 16-pixel height
+  }
+
+  void incrementPoint() {
+    score++;
+  }
+
+  void incrementRally() {
+    rallies++;
+  }
+
+ 
+  void getPaddleSpeed() {
+
+  }
+
+  void update() {
+    draw()
+  }
+
+  int getPaddleX() {
+    return x;
+  }
+
+  int getPaddleY() {
+    return y;
+  }
+
+  void setY(int y_input) {
+    y = y_input;
+  }
+
+  void draw() {
+    // draw paddle (4 pixels tall)
+    for (int i = 0; i < 4; i++) {
+      matrix.drawPixel(x, y + i, paddleColor);
     }
+  }
 
-    void incrementPoint() {
-
+  void erase() {
+    for (int i = 0; i < 4; i++) {
+      matrix.drawPixel(x, y + i, BLACK);
     }
-
-    void incrementRally() {
-
-    }
-
-    void drawPaddle(int8_t x, int8_t y) {
-
-    }
-
-  private:
-    int8_t x;
-    int8_t y;
-    uint8_t rallies;
-    uint8_t score;
-    Color paddleColor;
-
-    // member functions
-    void update() {
-      // stub
-    }
-
+  }
 };
 
 class PongBall {
