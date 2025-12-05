@@ -51,6 +51,10 @@ class Color {
     If you prefer though, we can just use int8_t x and int8_t y in place of this union... it might be better
 */
 
+// creating two player classes (global variables)
+Paddle p1;
+Paddle p2;
+
 
 const Color BLACK(0, 0, 0);
 const Color RED(4, 0, 0); 
@@ -66,6 +70,7 @@ const Color AQUA(0, 4, 4);
 long globalTime = 0;
 // Constants declared above: DO NOT EDIT
 
+// written by Reed
 // note the Paddle class I've sketched out also acts as a Player class
 class Paddle {
 public:
@@ -114,7 +119,7 @@ public:
 
  
   void getPaddleSpeed() {
-
+    y_difference 
   }
 
   void update() {
@@ -130,6 +135,7 @@ public:
   }
 
   void setY(int y_input) {
+    y_difference = getDifference(y_input);
     y = y_input;
   }
 
@@ -145,33 +151,133 @@ public:
       matrix.drawPixel(x, y + i, BLACK);
     }
   }
+
+  private:
+
+  int y_difference;
+
+  void getDifference(int y_org) {
+    return abs(y_org - y);
+  }
 };
 
+// written by Jo
 class PongBall {
 
   public:
     // i legit don't know what to put here i'm rushing these just so I can finish my SI110 assignment kms
-    PongBall() {
-      // constructor code
+    PongBall(int8_t xSpeed, int8_t ySpeed) {
+      x = 0;
+      y = 0;
+      isTouchingPaddle = false;
+      longEdgeCollision = false;
+      x_vel = xSpeed;
+      y_vel = ySpeed;
     }
 
-    void drawBall(int8_t x, int8_t y) {
-      
+    bool getHitLREdge() {
+      return longEdgeCollision;
+    }
+
+    bool paddleCollision() {
+      bool temp = isTouchingPaddle;
+      isTouchingPaddle == false;
+      return temp;
     }
 
   private:
     int8_t x;
     int8_t y;
+    // x,y velocity are scaled by 8 (so a value of 8 moves 1 pixel per tick update?)
+    // I know this isn't the proper way to do things, but it'll do cus I'm lazy
+    // note currently, x_vel and y_vel are not influenced by paddle velocity
+    int8_t x_vel;
+    int8_t y_vel;
+
+
     bool isTouchingPaddle; // if it hit a paddle
     bool longEdgeCollision; // if the pongball hit left or right
 
+    // for bounce detection
+    bool paddle;
+    int8_t presentPaddleX;
+    int8_t presentPaddleY;
+
     // member functions
+
+    void move() {
+      erase(x, y);
+      // division is taxing, so we're using the fastest operator: bit shifting!!!
+      x += (x_vel >> 3) + 1;
+      y += (y_vel >> 3) + 1;
+
+      // check for collisions?
+      
+      // PLEASE IMPLEMENT THESE FUNCTIONS
+      // this current code doesn't factor in speed of the paddle
+      paddle = (x >> 4);
+      if (paddle) {
+        // let paddle size be 4 pixels tall
+
+        presentPaddleX = p1.getPaddleX();
+        presentPaddleY = p1.getPaddleY();
+
+        if (x >= presentPaddleX - 1 && x <= presentPaddleX) {
+          if (y >= presentPaddleY && y <= presentPaddleY + 3) {
+            bounce(true); // true is horz bounce
+          }
+        }
+
+      } else {
+        // let paddle size be 4 pixels tall
+
+        presentPaddleX = p2.getPaddleX();
+        presentPaddleY = p2.getPaddleY();
+
+        if (x >= presentPaddleX && x <= presentPaddleX + 1) {
+          if (y >= presentPaddleY && y <= presentPaddleY + 3) {
+            bounce(true); // true is horz bounce
+          }
+        }
+      }
+
+      // end of plea of help
+      // so basically, we need p1, p2 (as global objects of Paddle class), getPaddleX, getPaddleY
+
+      // check edge conditions
+      if (y <= 0 || y >= 15) {
+        bounce(false);
+      }
+
+      longEdgeCollision = (x <= 0 || y >= 31);
+
+      //
+      drawBall(x, y);
+    }
 
     // cause the ball to bounce off the top, bottom edges, the paddles, and the breakout walls
     void bounce(bool direction) {
+
+      if (direction) {
+        x_vel *= -1;
+      } else {
+        y_vel *= -1;
+      }
+      
+      
       // direction is 0 for X, 1 for y
 
     }
+
+    void drawBall(int8_t x, int8_t y) {
+      matrix.drawPixel(x, y, WHITE);
+    }
+
+    void erase(int8_t x, int8_t y) {
+      matrix.drawPixel(x, y, BLACK);
+    }
+
+
 
 };
 
@@ -208,6 +314,7 @@ class BreakoutTile {
 
 };
 
+// written by Brenna
 class Game {
 
   public:
@@ -234,12 +341,25 @@ class Game {
 void setup() {
   // put your setup code here, to run once:
 
+  Serial.begin(9600);
+  pinMode(BUTTON_A_PIN_NUMBER, INPUT);
+  pinMode(BUTTON_B_PIN_NUMBER, INPUT);
+  matrix.begin();
+  title();
+  game.setupGame();
+
   // we need to initialize the LED board (basically)
 
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
+
+  int p1PotVal = analogRead(POTENTIOMETER_A_PIN_NUMBER);
+  int p2PotVal = analogRead(POTENTIOMETER_B_PIN_NUMBER);
+  bool button_A_pressed = (digitalRead(BUTTON_A_PIN_NUMBER) == HIGH);
+  bool button_B_pressed = (digitalRead(BUTTON_B_PIN_NUMBER) == HIGH);
+  game.update(potentiometer_value, button_pressed);
 
   // read potentiometer, then run game updates
 
