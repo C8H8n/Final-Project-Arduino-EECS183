@@ -118,8 +118,8 @@ public:
   }
 
  
-  void getPaddleSpeed() {
-    y_difference 
+  int16_t getPaddleSpeed() {
+    return y_difference;
   }
 
   void update() {
@@ -134,9 +134,11 @@ public:
     return y;
   }
 
+  // this function takes in the raw input from the potentiometer
   void setY(int y_input) {
-    y_difference = getDifference(y_input);
-    y = y_input;
+    y_difference = getDifference(y_input >> 1);
+    rawY = y_input >> 1; // 512 positions (to reduce noise)
+    y = y_input >> 5; // division by 32
   }
 
   void draw() {
@@ -153,11 +155,12 @@ public:
   }
 
   private:
-
+  // for gauging speed with higher precision
+  int rawY;
   int y_difference;
 
   void getDifference(int y_org) {
-    return abs(y_org - y);
+    return (y_org - rawY);
   }
 };
 
@@ -202,14 +205,15 @@ class PongBall {
     bool paddle;
     int8_t presentPaddleX;
     int8_t presentPaddleY;
+    int16_t paddleSpeed;
 
     // member functions
 
     void move() {
       erase(x, y);
       // division is taxing, so we're using the fastest operator: bit shifting!!!
-      x += (x_vel >> 3) + 1;
-      y += (y_vel >> 3) + 1;
+      x += (x_vel >> 4) + 1;
+      y += (y_vel >> 4) + 1;
 
       // check for collisions?
       
@@ -221,10 +225,11 @@ class PongBall {
 
         presentPaddleX = p1.getPaddleX();
         presentPaddleY = p1.getPaddleY();
+        paddleSpeed = p1.getPaddleSpeed();
 
         if (x >= presentPaddleX - 1 && x <= presentPaddleX) {
           if (y >= presentPaddleY && y <= presentPaddleY + 3) {
-            bounce(true); // true is horz bounce
+            bounce(true, true); // true is horz bounce
           }
         }
 
@@ -233,10 +238,11 @@ class PongBall {
 
         presentPaddleX = p2.getPaddleX();
         presentPaddleY = p2.getPaddleY();
+        paddleSpeed = p2.getPaddleSpeed();
 
         if (x >= presentPaddleX && x <= presentPaddleX + 1) {
           if (y >= presentPaddleY && y <= presentPaddleY + 3) {
-            bounce(true); // true is horz bounce
+            bounce(true, true); // true is horz bounce
           }
         }
       }
@@ -246,7 +252,7 @@ class PongBall {
 
       // check edge conditions
       if (y <= 0 || y >= 15) {
-        bounce(false);
+        bounce(false, false);
       }
 
       longEdgeCollision = (x <= 0 || y >= 31);
@@ -256,14 +262,27 @@ class PongBall {
     }
 
     // cause the ball to bounce off the top, bottom edges, the paddles, and the breakout walls
-    void bounce(bool direction) {
+    void bounce(bool direction, bool hitPaddle) {
 
+      // the y velocity of the ball depends on the paddle's speed
       if (direction) {
         x_vel *= -1;
       } else {
-        y_vel *= -1;
+        if (hitPaddle) {
+          y_vel += (paddleSpeed >> 2); 
+        } else {
+          y_vel *= -1;
+        }
       }
       
+      // clamp velocities at 128 (after recalculation, that means the ball will move 9 pixels/tick)
+      if (x_vel >> 7) {
+        x_vel = 127;
+      }
+
+      if (y_vel >> 7) {
+        y_vel = 127;
+      }
       
       // direction is 0 for X, 1 for y
 
