@@ -51,10 +51,6 @@ class Color {
     If you prefer though, we can just use int8_t x and int8_t y in place of this union... it might be better
 */
 
-// creating two player classes (global variables)
-Paddle p1;
-Paddle p2;
-
 
 const Color BLACK(0, 0, 0);
 const Color RED(4, 0, 0); 
@@ -79,6 +75,26 @@ public:
   int rallies;
   int score;
   Color paddleColor;
+
+  // default constructor to make PongBall work. NEVER CALL THIS OTHERWISE
+  Paddle() {
+    // defaults to 0
+    player = 0;
+
+    // Set paddle colors
+    if (player == 0) { 
+    paddleColor = RED;      // left paddle
+    }
+    
+    else {   
+    paddleColor = BLUE;   // right paddle
+    }
+
+    score = 0;
+    rallies = 0;
+
+    resetPos();
+  }
 
   Paddle(bool p) {
     player = p;
@@ -123,7 +139,7 @@ public:
   }
 
   void update() {
-    draw()
+    draw();
   }
 
   int getPaddleX() {
@@ -144,13 +160,13 @@ public:
   void draw() {
     // draw paddle (4 pixels tall)
     for (int i = 0; i < 4; i++) {
-      matrix.drawPixel(x, y + i, paddleColor);
+      matrix.drawPixel(x, y + i, paddleColor.to_333());
     }
   }
 
   void erase() {
     for (int i = 0; i < 4; i++) {
-      matrix.drawPixel(x, y + i, BLACK);
+      matrix.drawPixel(x, y + i, BLACK.to_333());
     }
   }
 
@@ -159,7 +175,7 @@ public:
   int rawY;
   int y_difference;
 
-  void getDifference(int y_org) {
+  int16_t getDifference(int y_org) {
     return (y_org - rawY);
   }
 };
@@ -168,7 +184,17 @@ public:
 class PongBall {
 
   public:
-    // i legit don't know what to put here i'm rushing these just so I can finish my SI110 assignment kms
+    // default constructor. Should not be called (generally)
+    PongBall() {
+      x = 0;
+      y = 0;
+      isTouchingPaddle = false;
+      longEdgeCollision = false;
+      x_vel = 0;
+      y_vel = 0;
+    }
+
+    
     PongBall(int8_t xSpeed, int8_t ySpeed) {
       x = 0;
       y = 0;
@@ -197,6 +223,8 @@ class PongBall {
     int8_t x_vel;
     int8_t y_vel;
 
+    Paddle p1;
+    Paddle p2;
 
     bool isTouchingPaddle; // if it hit a paddle
     bool longEdgeCollision; // if the pongball hit left or right
@@ -289,11 +317,11 @@ class PongBall {
     }
 
     void drawBall(int8_t x, int8_t y) {
-      matrix.drawPixel(x, y, WHITE);
+      matrix.drawPixel(x, y, WHITE.to_333());
     }
 
     void erase(int8_t x, int8_t y) {
-      matrix.drawPixel(x, y, BLACK);
+      matrix.drawPixel(x, y, BLACK.to_333());
     }
 
 
@@ -342,6 +370,12 @@ class Game {
       // game constructor
     }
 
+    Game(Paddle p1, Paddle p2) {
+      // game constructor
+      player1 = p1;
+      player2 = p2;
+    }
+
     void setupGame() {
       // self explanatory
     }
@@ -353,12 +387,80 @@ class Game {
 
   private:
 
+    Paddle player1;
+    Paddle player2;
+
+    bool checkWinner(Paddle p1, Paddle p2) {
+      return true; // dud code
+    }
+
+};  
+
+class Menu {
+
+  public:
+
+    Menu() {
+
+    }
+
+    // basically a while loop that runs until a menu is selected
+    // should allow for scrolling menus (if needed)
+    // text can be 8 pixels tall
+    // we can later decide how many menu choices, but I'm thinking currently 2: singleplayer and multiplayer
+    // if we have the time, we could do singleplayer endless
+    void runMenu() {
+
+    }
+
+  private:
+    uint8_t menuPosition;
+
+    uint8_t getMenuChoice() {
+      return 0; // temporary
+    }
+
+    // should only run when the potentiometer value changes or button pressed
+    void updateVisibleMenu() {
+
+    }
+    
+    // if the line is too long, scroll text
+    // rate is ms of delay between each character scrolling
+    void scrollText(int rate) {
+
+    }
+
+    void printLine(bool highlighted) {
+      // should use printChar()
+      // if highlighted, use white bg, else black bg
+    }
+
+    // let text
+    void printChar() {
+      // should print out a character
+    }
+
+
+
+    void erase() {
+      matrix.fillScreen(BLACK.to_333());
+    }
 
 };
+
+
+
+// creating a game object
+// TEMPORARY until Menu class is setup
 
 // Main Code
 void setup() {
   // put your setup code here, to run once:
+
+  // creating two player classes (global variables)
+  Paddle player1 = Paddle(0);
+  Paddle player2 = Paddle(1);
 
   Serial.begin(9600);
   pinMode(BUTTON_A_PIN_NUMBER, INPUT);
